@@ -1,0 +1,6 @@
+/__pycache__
+/myenv
+/huggingface
+.env
+table_csvs
+table_wers
