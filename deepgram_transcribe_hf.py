@@ -1,41 +1,49 @@
-import assemblyai as aai 
 import os
 from dotenv import load_dotenv
 import pandas as pd
 from calculate_wer import calculate_wer
 from utils import load_files
 import concurrent.futures
+from deepgram import (
+    DeepgramClient,
+    PrerecordedOptions,
+    FileSource,
+)
 
 load_dotenv()
-aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
+deepgram_api_key = os.getenv('DEEPGRAM_API_KEY')
+deepgram = DeepgramClient(deepgram_api_key)
 
-config = aai.TranscriptionConfig(language_code="en")
-transcriber = aai.Transcriber(config=config)
-
-def transcribe_all_files_assembly(audio_files, labels_list, output_csv_path, language_code, speech_model='best'):
-
+def transcribe_all_files_deepgram(audio_files, labels_list, output_csv_path, language_code, speech_model='nova-2'):
     file_mappings = load_files(audio_files, labels_list)
     audio_paths = []
     truth_text = []
     transcript_outputs = []
 
     def process_file(file, language_code):
-        if language_code == "cmn_hans_cn":
-            language_code = "zh"
-        
-        model = aai.SpeechModel.best
-        if speech_model != "best":
-            model = aai.SpeechModel.nano
-        
-        transcript = transcriber.transcribe(file['audio'], config=aai.TranscriptionConfig(language_code=language_code.split("_")[0], speech_model=model))
-        print(transcript.text)
+        with open(file['audio'], 'rb') as audio:
+            buffer_data = audio.read()
+
+        payload: FileSource = {
+            "buffer": buffer_data,
+        }
+
+        options = PrerecordedOptions(
+            model=speech_model,
+            smart_format=True,
+            language=language_code.split("_")[0]
+        )
+
+        response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
+        transcript = response.results.channels[0].alternatives[0].transcript
+        print(transcript)
 
         truth_str = file['truth']
 
         return {
             'audio': file['audio'],
             'truth': truth_str,
-            'transcript': transcript.text
+            'transcript': transcript
         }
         
     with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:

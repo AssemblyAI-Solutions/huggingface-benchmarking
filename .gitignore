@@ -4,3 +4,5 @@
 .env
 table_csvs
 table_wers
+google.json
+.DS_Store

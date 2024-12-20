@@ -1,5 +1,7 @@
 import os
+import subprocess
 from pydub import AudioSegment
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,17 +14,22 @@ def load_files(audio_files, text_files):
             "truth": text_file
         }
         paths.append(file_mapping)
-    # for file in text_files:
-    #     split_path = file.split(".txt")[0]
-    #     audio_path = f"{audio_file_dir}/{split_path}"
-    #     file_mapping = {
-    #         "audio": audio_path,
-    #         "truth": f"{text_file_dir}/{file}"
-    #     }
-    #     paths.append(file_mapping)
     return paths
 
-#needed at times for whisper
+def reformat_file_path(wrong_path):
+    base_dir = os.getenv('BASE_DIR')
+    unique_id = wrong_path.split('/')[8]
+    file_name = os.path.basename(wrong_path)
+    
+    # Extract the first two IDs from the file name
+    # first_id, second_id, _ = file_name.split('-')
+    
+    # Construct the correct path, you may need to change this depending on the dataset you are using
+    correct_path = os.path.join(base_dir, unique_id, "test", file_name)
+    
+    return correct_path
+
+# needed at times for whisper
 def convert_flac_to_mp3(flac_path):
     """Converts a FLAC file to MP3 format and saves it in the 'mp3s' folder."""
     # Ensure the 'mp3s' directory exists
@@ -38,15 +45,11 @@ def convert_flac_to_mp3(flac_path):
     
     return mp3_path
 
-def reformat_file_path(wrong_path):
-    base_dir = os.getenv('BASE_DIR')
-    unique_id = wrong_path.split('/')[8]
-    file_name = os.path.basename(wrong_path)
-    
-    # Extract the first two IDs from the file name
-    # first_id, second_id, _ = file_name.split('-')
-    
-    # Construct the correct path, you may need to change this depending on the dataset you are using
-    correct_path = os.path.join(base_dir, unique_id, "test", file_name)
-    
-    return correct_path
+# needed at times for google
+def convert_32bit_to_16bit(file_path):
+    # first check if the file is already 16bit
+    if os.path.exists(file_path.replace('.wav', '-16bit.wav')):
+        return file_path.replace('.wav', '-16bit.wav')
+    else:
+        subprocess.run(['ffmpeg', '-i', file_path, '-acodec', 'pcm_s16le', '-ar', '16000', file_path.replace('.wav', '-16bit.wav')])
+        return file_path.replace('.wav', '-16bit.wav')

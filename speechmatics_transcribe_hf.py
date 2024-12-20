@@ -41,10 +41,9 @@ def transcribe(path, language):
         except Exception as e:
             print(e)
 
-def transcribe_all_files_speechmatics(audio_files, labels_list, output_csv_path, language_code):
+def transcribe_all_files_speechmatics(audio_files, labels_list, output_csv_path, language_code, speech_model=''):
 
     file_mappings = load_files(audio_files, labels_list)
-    print(file_mappings)
     audio_paths = []
     truth_text = []
     transcript_outputs = []

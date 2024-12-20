@@ -1,8 +1,5 @@
-# files in table_wers have csv format with columns: audio_path,target,prediction,wer,insertions,deletions,substitutions,duration
-# file format is {model}_{language_code}.csv
-# we want to average the wers for each model language pairing
-# then we want to print out the average wer for each model across all languages
-# we can output this in a table format with tabulate
+# Process CSV files in 'table_wers' directory to calculate average WER for each model-language pair.
+# Output the average WER for each model across all languages in a table format using tabulate.
 
 import os
 import pandas as pd
