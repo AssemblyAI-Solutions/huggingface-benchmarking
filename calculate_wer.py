@@ -1,4 +1,4 @@
-from jiwer import wer, compute_measures
+from jiwer import wer, cer, compute_measures
 import pandas as pd
 from whisper_normalizer.basic import BasicTextNormalizer
 from pydub import AudioSegment
@@ -11,7 +11,7 @@ def get_audio_duration(audio_path):
     audio = AudioSegment.from_file(audio_path)
     return len(audio) / 1000.0
 
-def calculate_wer(csv_path, metrics_output_path):
+def calculate_wer(csv_path, metrics_output_path, language_code='en'):
 
     wer_calculations = []
     insertions = []
@@ -23,16 +23,25 @@ def calculate_wer(csv_path, metrics_output_path):
     for index, row in df.iterrows():
         print(row["audio_path"])
         print(row["prediction"])
+        try:
+            normalized_target = normalizer(row["target"])
+            normalized_prediction = normalizer(row["prediction"])
+        except Exception as e:
+            # if the prediction is empty the normalizer will throw an error. Set the prediction to an empty string.
+            normalized_target = row["target"]
+            normalized_prediction = ' '
 
-        normalized_target = normalizer(row["target"])
-        normalized_prediction = normalizer(row["prediction"])
         measures = compute_measures(normalized_target, normalized_prediction)
         word_error_rate = wer(normalized_target, normalized_prediction)
+        character_error_rate = cer(normalized_target, normalized_prediction)
 
         insertions.append(measures['insertions'])
         deletions.append(measures['deletions'])
         substitutions.append(measures['substitutions'])
-        wer_calculations.append(word_error_rate)
+        if 'zh' in language_code.lower() or 'cmn' in language_code.lower() or 'ja' in language_code.lower():
+            wer_calculations.append(character_error_rate)
+        else:
+            wer_calculations.append(word_error_rate)
         
         # Get duration of the audio file
         duration = get_audio_duration(row["audio_path"])
@@ -53,3 +62,6 @@ def calculate_wer(csv_path, metrics_output_path):
     print(f"Normalized Average WER: {normalized_average_wer}")
 
     return df, normalized_average_wer
+
+if __name__ == "__main__":
+    calculate_wer("table_csvs/deepgram_uk_ua_nova-2.csv", "table_wers/deepgram_uk_ua_nova-2.csv")

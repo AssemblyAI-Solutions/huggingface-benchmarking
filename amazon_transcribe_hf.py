@@ -17,12 +17,18 @@ transcribe_client = boto3.client('transcribe',
                                  aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 
 def transcribe_audio(file_uri, job_name, language_code):
-    new_language_code = language_code.split("_")[0] + "-" + language_code.split("_")[1].upper()
+    if 'es' in language_code:
+        language_code = 'es-ES'
+    elif 'cmn' in language_code:
+        language_code = 'zh-CN'
+    else:
+        language_code = language_code.split("_")[0] + "-" + language_code.split("_")[1].upper()
+        
     response = transcribe_client.start_transcription_job(
         TranscriptionJobName=job_name,
         Media={'MediaFileUri': file_uri},
         MediaFormat='mp3',
-        LanguageCode=new_language_code
+        LanguageCode=language_code
     )
     return response
 
@@ -46,6 +52,7 @@ def transcribe_all_files_amazon(audio_files, labels_list, output_csv_path, langu
     transcript_outputs = []
 
     def process_file(file, language_code):
+        
         # Generate a unique job name using UUID
         unique_id = uuid.uuid4()
         job_name = f"transcription-{file['audio'].split('/')[-1]}-{unique_id}"
@@ -95,5 +102,5 @@ def transcribe_all_files_amazon(audio_files, labels_list, output_csv_path, langu
 
     df.to_csv(f"table_csvs/{output_csv_path}", index=False)
     print(df)
-    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}")
+    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}", language_code)
     return df

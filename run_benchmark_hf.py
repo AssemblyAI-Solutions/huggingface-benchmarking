@@ -11,7 +11,7 @@ from hf_datasets import load_fleurs
 
 providers = {
     "assemblyai": transcribe_all_files_assembly,
-    "openai_whisper": transcribe_all_files_whisper,
+    "whisper": transcribe_all_files_whisper,
     "speechmatics": transcribe_all_files_speechmatics,
     "deepgram": transcribe_all_files_deepgram,
     "aws": transcribe_all_files_amazon,
@@ -21,8 +21,8 @@ providers = {
 # SET MODEL FOR EACH PROVIDER
 models_per_provider = {
     "deepgram": "nova-2", # nova-2, enhanced, general
-    "speechmatics": "",
-    "openai_whisper": "whisper-1",
+    "speechmatics": "default",
+    "whisper": "whisper-1",
     "assemblyai": "best", # best or nano
     "aws": "default",
     "google": "latest_long" # latest_long, latest_short
@@ -31,36 +31,35 @@ models_per_provider = {
 # COMMENT OUT PROVIDERS YOU DON'T WANT TO USE
 providers_to_use = [
     "assemblyai",
-    "openai_whisper",
+    "whisper",
     "speechmatics",
+    "aws",
+    "google",
     "deepgram",
-    "aws"
-    "google"
 ]
 
 # COMMENT OUT LANGUAGES YOU DON'T WANT TO USE
 languages = [
-    # "fr_fr",
-    # "it_it",
-    # "pt_br",
-    # "nl_nl",
-    # "hi_in",
-    # "ja_jp",
-    # "cmn_hans_cn",
-    # "fi_fi",
-    # "ko_kr",
-    # "pl_pl",
-    # "ru_ru",
-    # "tr_tr",
-    # "uk_ua",
-    # "vi_vn",
+    "fr_fr",
+    "it_it",
+    "pt_br",
+    "nl_nl",
+    "hi_in",
+    "ja_jp",
+    "cmn_hans_cn",
+    "fi_fi",
+    "ko_kr",
+    "pl_pl",
+    "ru_ru",
+    "tr_tr",
+    "uk_ua",
+    "vi_vn",
     "en_us",
-    # "es_419",
-    # "de_de"
-    # "hu_hu"
+    "es_419",
+    "de_de"
 ]
 
-file_limit = 10 # set this to 0 to run all files
+file_limit = 100 # set this to 0 to run all files
 
 for language_code in languages:
     dataset = load_fleurs(language_code)
@@ -78,9 +77,18 @@ for language_code in languages:
 
     # Important: the audio_files list and labels list need to have the same files in the same order.
     def run(providers_list, file_list=[], labels_list=[]):
-        for provider in providers_list:
+        for provider in providers_list:        
             script = providers[provider]
             default_model = models_per_provider[provider]
-            script(file_list, labels_list, f"{provider}_{language_code}_{default_model}.csv", language_code, speech_model=default_model)
+
+            # check if provider language file model csv exists
+            if os.path.exists(f"table_wers/{provider}_{language_code}_{default_model}.csv"):
+                print(f"Skipping {provider}_{language_code}_{default_model}.csv because it already exists")
+                continue
+            
+            try:
+                script(file_list, labels_list, f"{provider}_{language_code}_{default_model}.csv", language_code, speech_model=default_model)
+            except Exception as e:
+                print(f"Error running {provider}_{language_code}_{default_model}.csv: {e}")
 
     run(providers_to_use, path_list, labels_list)

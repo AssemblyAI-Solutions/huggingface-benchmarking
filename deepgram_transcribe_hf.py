@@ -21,6 +21,9 @@ def transcribe_all_files_deepgram(audio_files, labels_list, output_csv_path, lan
     transcript_outputs = []
 
     def process_file(file, language_code):
+        if language_code == "cmn_hans_cn":
+            language_code = "zh"
+            
         with open(file['audio'], 'rb') as audio:
             buffer_data = audio.read()
 
@@ -46,7 +49,7 @@ def transcribe_all_files_deepgram(audio_files, labels_list, output_csv_path, lan
             'transcript': transcript
         }
         
-    with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
         futures = [executor.submit(process_file, file, language_code) for file in file_mappings]
         for future in concurrent.futures.as_completed(futures):
             result = future.result()
@@ -64,5 +67,5 @@ def transcribe_all_files_deepgram(audio_files, labels_list, output_csv_path, lan
 
     df.to_csv(f"table_csvs/{output_csv_path}", index=False)
     print(df)
-    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}")
+    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}", language_code)
     return df

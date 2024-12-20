@@ -82,5 +82,5 @@ def transcribe_all_files_speechmatics(audio_files, labels_list, output_csv_path,
 
     df.to_csv(f"table_csvs/{output_csv_path}", index=False)
     print(df)
-    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}")
+    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}", language_code)
     return df

@@ -18,11 +18,18 @@ def transcribe_audio(file_uri, language_code, speech_model):
 
     audio = speech.RecognitionAudio(content=audio_content)
 
+    if 'es' in language_code:
+        language_code = 'es-ES'
+    elif 'cmn' in language_code:
+        language_code = 'cmn-Hans-CN'
+    else:
+        language_code = language_code.split("_")[0] + "-" + language_code.split("_")[1].upper()
+
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=16000,
-        language_code=language_code.split("_")[0] + "-" + language_code.split("_")[1].upper(),
-        model=speech_model,
+        language_code=language_code,
+        model=speech_model if language_code != "cmn_hans_cn" else "default"
     )
 
     transcript = ''
@@ -76,5 +83,5 @@ def transcribe_all_files_google(audio_files, labels_list, output_csv_path, langu
 
     df.to_csv(f"table_csvs/{output_csv_path}", index=False)
     print(df)
-    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}")
+    calculate_wer(f"table_csvs/{output_csv_path}", f"table_wers/{output_csv_path}", language_code)
     return df

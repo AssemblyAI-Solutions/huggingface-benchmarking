@@ -9,9 +9,10 @@ def process_csv_files(directory):
     results = {}
     for filename in os.listdir(directory):
         if filename.endswith('.csv'):
-            model, lang_code = filename.split('_', 1)
-            lang_code = lang_code.rsplit('.', 1)[0]  # Remove file extension
-            
+            parts = filename.split('_')
+            model = parts[0]
+            lang_code = '_'.join(parts[1:2])
+
             df = pd.read_csv(os.path.join(directory, filename))
             avg_wer = df['wer'].mean()
             
@@ -34,7 +35,7 @@ def main():
     # Prepare data for tabulation
     table_data = []
     languages = sorted(set(lang for model_data in results.values() for lang in model_data.keys()))
-    models = ['assemblyai', 'speechmatics']  # Specify the order of models
+    models = ['assemblyai', 'speechmatics', 'whisper', 'google', 'deepgram', 'aws']  # Specify the order of models
     
     for lang in languages:
         row = [lang]
@@ -47,7 +48,7 @@ def main():
         table_data.append(row)
     
     # Print table of WERs for each model and language
-    headers = ['Language', 'assemblyai', 'speechmatics']
+    headers = ['Language', 'assemblyai', 'speechmatics', 'whisper', 'google', 'deepgram', 'aws']
     print(tabulate(table_data, headers=headers, tablefmt='grid'))
     
     # Calculate and print overall averages
