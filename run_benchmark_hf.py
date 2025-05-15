@@ -20,10 +20,10 @@ providers = {
 
 # SET MODEL FOR EACH PROVIDER
 models_per_provider = {
-    "deepgram": "nova-2", # nova-2, enhanced, general
+    "deepgram": "nova-2", # nova-3, nova-2, enhanced, general
     "speechmatics": "default",
     "whisper": "whisper-1",
-    "assemblyai": "best", # best or nano
+    "assemblyai": "universal", # universal, nano, slam-1
     "aws": "default",
     "google": "latest_long" # latest_long, latest_short
 }
@@ -31,11 +31,11 @@ models_per_provider = {
 # COMMENT OUT PROVIDERS YOU DON'T WANT TO USE
 providers_to_use = [
     "assemblyai",
-    "whisper",
-    "speechmatics",
-    "aws",
-    "google",
-    "deepgram",
+    # "whisper",
+    # "speechmatics",
+    # "aws",
+    # "google",
+    # "deepgram",
 ]
 
 # COMMENT OUT LANGUAGES YOU DON'T WANT TO USE

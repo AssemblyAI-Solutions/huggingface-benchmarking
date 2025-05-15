@@ -23,9 +23,11 @@ def transcribe_all_files_assembly(audio_files, labels_list, output_csv_path, lan
         if language_code == "cmn_hans_cn":
             language_code = "zh"
         
-        model = aai.SpeechModel.best
-        if speech_model != "best":
+        model = aai.SpeechModel.universal
+        if speech_model == "nano":
             model = aai.SpeechModel.nano
+        if speech_model == "slam-1":
+            model = aai.SpeechModel.slam_1
         
         transcript = transcriber.transcribe(file['audio'], config=aai.TranscriptionConfig(language_code=language_code.split("_")[0], speech_model=model))
         print(transcript.text)

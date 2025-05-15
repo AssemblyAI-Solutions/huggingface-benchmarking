@@ -1,4 +1,4 @@
-assemblyai==0.26.0
+assemblyai==0.40.2
 datasets==2.19.2
 jiwer==3.0.4
 openai==1.58.1
