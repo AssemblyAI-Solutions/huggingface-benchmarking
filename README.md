@@ -16,11 +16,15 @@ This tool allows users to benchmark Automatic Speech Recognition (ASR) systems u
 
 ### Prerequisites
 - API keys for each provider
-- If you want to use AWS you will need to set up a S3 bucket
+- If you want to use AWS you will need to set up a S3 bucket and add the credentials to the `.env` file.
 
 ### Steps
 1. Clone the repository
-2. Install dependencies:
+2. Install ffmpeg:
+   ```bash
+   brew install ffmpeg
+   ```
+3. Install dependencies:
    ```bash
    pip3 install -r requirements.txt
    ```
@@ -37,4 +41,4 @@ This tool allows users to benchmark Automatic Speech Recognition (ASR) systems u
    python3 run_benchmark_hf.py
    ```
 3. View results in the `table_wers` and `table_csvs` directories.
-4. Optionally, you can run `compare.py` to generate a summary of the results.
+4. Optionally, you can run `compare.py` to generate a summary of the results after the benchmark has finished.

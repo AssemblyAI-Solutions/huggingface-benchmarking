@@ -8,6 +8,7 @@ import concurrent.futures
 
 load_dotenv()
 aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
+aai.settings.http_timeout = 300
 
 config = aai.TranscriptionConfig(language_code="en")
 transcriber = aai.Transcriber(config=config)

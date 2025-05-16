@@ -62,7 +62,7 @@ languages = [
 file_limit = 100 # set this to 0 to run all files
 
 for language_code in languages:
-    dataset = load_fleurs(language_code)
+    dataset = load_fleurs(language_code, file_limit)
 
     # create table_csvs, table_wers
     os.makedirs('table_csvs', exist_ok=True)

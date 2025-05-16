@@ -9,16 +9,21 @@ def process_csv_files(directory):
     results = {}
     for filename in os.listdir(directory):
         if filename.endswith('.csv'):
-            parts = filename.split('_')
-            model = parts[0]
-            lang_code = '_'.join(parts[1:2])
-
+            # Parse filename like "assemblyai_it_it_nano.csv"
+            parts = filename.replace('.csv', '').split('_')
+            provider = parts[0]
+            lang_code = parts[1]
+            model_variant = parts[-1]  # Get the model variant (e.g., 'nano')
+            
+            # Create a unique model identifier combining provider and variant
+            model_id = f"{provider}_{model_variant}"
+            
             df = pd.read_csv(os.path.join(directory, filename))
             avg_wer = df['wer'].mean()
             
-            if model not in results:
-                results[model] = {}
-            results[model][lang_code] = avg_wer
+            if model_id not in results:
+                results[model_id] = {}
+            results[model_id][lang_code] = avg_wer
     
     return results
 
@@ -35,7 +40,9 @@ def main():
     # Prepare data for tabulation
     table_data = []
     languages = sorted(set(lang for model_data in results.values() for lang in model_data.keys()))
-    models = ['assemblyai', 'speechmatics', 'whisper', 'google', 'deepgram', 'aws']  # Specify the order of models
+    
+    # Get unique models from results
+    models = sorted(results.keys())
     
     for lang in languages:
         row = [lang]
@@ -48,7 +55,7 @@ def main():
         table_data.append(row)
     
     # Print table of WERs for each model and language
-    headers = ['Language', 'assemblyai', 'speechmatics', 'whisper', 'google', 'deepgram', 'aws']
+    headers = ['Language'] + models
     print(tabulate(table_data, headers=headers, tablefmt='grid'))
     
     # Calculate and print overall averages
